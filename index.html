@@ -28,28 +28,36 @@
       linear-gradient(178deg,#fdf8f3 0%,#efe9f1 100%);
     color:var(--ink);
     min-height:100%;
-    display:flex;
-    justify-content:center;
+    display:flex;justify-content:center;
     padding:20px 18px;
   }
   .app{
-    width:100%;
-    max-width:460px;
+    width:100%;max-width:460px;
     background:var(--card);
     border-radius:28px;
     border:1px solid rgba(255,255,255,0.85);
     box-shadow:0 2px 6px rgba(120,80,60,0.06), 0 34px 60px -24px rgba(120,80,60,0.42);
     overflow:hidden;
-    display:flex;
-    flex-direction:column;
-  }
-  header{
-    background:var(--grad);
-    color:#fff;
-    padding:27px 22px 23px;
-    text-align:center;
+    display:flex;flex-direction:column;
     position:relative;
-    overflow:hidden;
+  }
+  #loading{
+    position:absolute;inset:0;z-index:50;
+    background:var(--card);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;
+    color:var(--muted);font-size:14px;
+  }
+  #loading.hidden{display:none;}
+  .spinner{
+    width:36px;height:36px;border-radius:50%;
+    border:3px solid var(--accent-soft);border-top-color:var(--accent);
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  header{
+    background:var(--grad);color:#fff;
+    padding:27px 22px 23px;text-align:center;
+    position:relative;overflow:hidden;
   }
   header::after{
     content:"";position:absolute;
@@ -59,13 +67,11 @@
   }
   .title{
     font-size:33px;font-weight:800;letter-spacing:-0.5px;
-    text-shadow:0 1px 10px rgba(0,0,0,0.13);
-    position:relative;
+    text-shadow:0 1px 10px rgba(0,0,0,0.13);position:relative;
   }
   .names{
     margin-top:13px;position:relative;
-    display:flex;align-items:center;justify-content:center;gap:8px;
-    font-size:14px;
+    display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;
   }
   .names span{color:rgba(255,255,255,0.75);}
   .names input{
@@ -96,7 +102,6 @@
   @keyframes fade{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
   .hint{font-size:13px;color:var(--muted);margin-bottom:15px;line-height:1.5;}
 
-  /* calendar */
   .calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;}
   .calhead button{
     border:none;background:var(--accent-soft);color:var(--accent);
@@ -118,13 +123,13 @@
   }
   .cell:active{transform:scale(0.94);}
   .cell.blank{background:transparent;cursor:default;}
+  .cell.bothfree{background:var(--free-soft);}
   .cell.today{box-shadow:inset 0 0 0 1.7px var(--accent);}
   .cell.sel{background:var(--grad);color:#fff;box-shadow:0 6px 14px -5px rgba(168,102,120,0.6);}
   .cell .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);}
   .cell.sel .dot{background:#fff;}
   .caldaytitle{font-size:13px;font-weight:800;margin-bottom:11px;color:var(--accent);letter-spacing:-0.1px;}
 
-  /* free time */
   .dayrow{
     display:flex;align-items:center;gap:10px;
     padding:10px;border-radius:15px;margin-bottom:8px;
@@ -148,9 +153,14 @@
     border-color:transparent;color:#fff;
     box-shadow:0 5px 12px -5px rgba(79,144,112,0.65);
   }
-  .badge{font-size:11px;font-weight:700;color:var(--free);width:100%;text-align:center;letter-spacing:.3px;}
+  .planbtn{
+    width:100%;background:#fff;
+    color:var(--free);font-size:11.5px;font-weight:700;
+    padding:8px;border-radius:10px;cursor:pointer;font-family:inherit;
+    letter-spacing:.2px;border:1px solid #cfe2d3;
+  }
+  .planbtn:active{background:var(--free-soft);}
 
-  /* shared list bits */
   .addrow{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
   .addrow input[type=text]{flex:1;min-width:130px;}
   input{
@@ -176,15 +186,13 @@
     width:27px;height:27px;flex-shrink:0;
     border:1.5px solid var(--accent);border-radius:50%;
     background:#fff;color:var(--accent);font-size:13px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    transition:transform .12s;
+    display:flex;align-items:center;justify-content:center;transition:transform .12s;
   }
   .check:active{transform:scale(0.9);}
   .item.done .check{background:var(--grad);border-color:transparent;color:#fff;}
   .del{
     border:none;background:none;color:var(--muted);
-    font-size:20px;cursor:pointer;line-height:1;flex-shrink:0;padding:0 4px;
-    transition:color .12s;
+    font-size:20px;cursor:pointer;line-height:1;flex-shrink:0;padding:0 4px;transition:color .12s;
   }
   .del:hover{color:var(--accent);}
   .empty{text-align:center;color:var(--muted);font-size:13px;padding:26px 12px;line-height:1.5;}
@@ -218,6 +226,7 @@
 </head>
 <body>
 <div class="app">
+  <div id="loading"><div class="spinner"></div><div>Connecting&hellip;</div></div>
   <header>
     <div class="title">us</div>
     <div class="names">
@@ -236,7 +245,7 @@
   </nav>
   <main>
     <section class="tab active" id="tab-cal">
-      <p class="hint">Tap a day, then add a plan for it. Days with plans show a dot.</p>
+      <p class="hint">Tap a day, then add a plan for it. Days with plans show a dot; days you're both free are tinted green.</p>
       <div class="calhead">
         <button id="calPrev" aria-label="Previous month">&lsaquo;</button>
         <div id="calTitle"></div>
@@ -252,7 +261,7 @@
     </section>
 
     <section class="tab" id="tab-free">
-      <p class="hint">Tap each name on the days you're free this week. Days you're both free are highlighted.</p>
+      <p class="hint">Tap each name on the days you're free this week. When you're both free, a button appears to drop a plan straight onto the calendar.</p>
       <div id="freeGrid"></div>
     </section>
 
@@ -295,42 +304,50 @@
       <div id="todoList"></div>
     </section>
   </main>
-  <footer>saved on this device</footer>
+  <footer id="foot">connecting&hellip;</footer>
 </div>
-<script>
-(function(){
-  "use strict";
-  var STORE = "usAppData";
 
-  function uid(){ return Math.random().toString(36).slice(2,9); }
-  function pad2(n){ return String(n).padStart(2,"0"); }
-  function esc(s){
-    return (s==null?"":String(s)).replace(/[&<>"]/g,function(c){
-      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];
-    });
-  }
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { getFirestore, doc, onSnapshot, setDoc }
+  from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
-  function freshState(){
-    var seed = ["Cook a new recipe together","Sunset walk somewhere new",
-      "Movie marathon night in","Try that restaurant you keep mentioning",
-      "Picnic in the park","Stargazing drive","Board game night",
-      "Visit a museum or gallery"];
-    return {
-      names:{a:"You",b:"Me"},
-      free:{},
-      ideas:seed.map(function(t){ return {id:uid(),text:t,done:false}; }),
-      days:[],
-      todos:[],
-      events:[],
-      watch:[]
-    };
-  }
+const firebaseConfig = {
+  apiKey: "AIzaSyBbcQyzHLmowOJ6VDqcm1mzoH8oQ5z8wZ4",
+  authDomain: "josholivia-1.firebaseapp.com",
+  projectId: "josholivia-1",
+  storageBucket: "josholivia-1.firebasestorage.app",
+  messagingSenderId: "549941294158",
+  appId: "1:549941294158:web:0681aa06b26d72f949bf1f"
+};
 
-  var state;
-  try{
-    var raw = localStorage.getItem(STORE);
-    state = raw ? JSON.parse(raw) : freshState();
-  }catch(e){ state = freshState(); }
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+const docRef = doc(db, "shared", "main");
+
+/* ---- helpers ---- */
+function uid(){ return Math.random().toString(36).slice(2,9); }
+function pad2(n){ return String(n).padStart(2,"0"); }
+function esc(s){
+  return (s==null?"":String(s)).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];
+  });
+}
+function fmtKey(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate()); }
+
+function freshState(){
+  var seed = ["Cook a new recipe together","Sunset walk somewhere new",
+    "Movie marathon night in","Try that restaurant you keep mentioning",
+    "Picnic in the park","Stargazing drive","Board game night",
+    "Visit a museum or gallery"];
+  return {
+    names:{a:"You",b:"Me"}, free:{},
+    ideas:seed.map(function(t){ return {id:uid(),text:t,done:false}; }),
+    days:[], todos:[], events:[], watch:[]
+  };
+}
+function normalize(){
+  if(!state || typeof state!=="object") state = freshState();
   state.names  = state.names  || {a:"You",b:"Me"};
   state.free   = state.free   || {};
   state.ideas  = state.ideas  || [];
@@ -338,353 +355,431 @@
   state.todos  = state.todos  || [];
   state.events = state.events || [];
   state.watch  = state.watch  || [];
+}
 
-  function save(){
-    try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){}
-  }
-  function fmtKey(d){
-    return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
-  }
+var state = null;
+var booted = false;
 
-  /* ---- names ---- */
-  var nameA = document.getElementById("nameA");
-  var nameB = document.getElementById("nameB");
-  nameA.value = state.names.a;
-  nameB.value = state.names.b;
-  function onName(){
-    state.names.a = nameA.value.trim() || "You";
-    state.names.b = nameB.value.trim() || "Me";
-    save(); renderFree();
-  }
-  nameA.addEventListener("change", onName);
-  nameB.addEventListener("change", onName);
+function save(){
+  if(!state) return;
+  setDoc(docRef, { json: JSON.stringify(state) }).catch(function(err){
+    console.error("Save failed:", err);
+  });
+}
 
-  /* ---- tabs ---- */
-  var tabBtns = document.querySelectorAll("nav.tabs button");
-  tabBtns.forEach(function(btn){
-    btn.addEventListener("click", function(){
-      tabBtns.forEach(function(b){ b.classList.remove("active"); });
-      btn.classList.add("active");
-      document.querySelectorAll(".tab").forEach(function(t){ t.classList.remove("active"); });
-      document.getElementById("tab-"+btn.dataset.tab).classList.add("active");
-    });
-  });
+function showError(msg){
+  var l = document.getElementById("loading");
+  l.classList.remove("hidden");
+  l.innerHTML = '<div style="padding:34px;text-align:center;color:var(--muted);'+
+    'font-size:13.5px;line-height:1.6;">'+esc(msg)+'</div>';
+}
 
-  /* ---- calendar ---- */
-  var MONTHS = ["January","February","March","April","May","June",
-    "July","August","September","October","November","December"];
-  var CDOW = ["S","M","T","W","T","F","S"];
-  var calView = new Date(); calView.setDate(1); calView.setHours(0,0,0,0);
-  var calSel = fmtKey(new Date());
+/* ---- names ---- */
+var nameA = document.getElementById("nameA");
+var nameB = document.getElementById("nameB");
+function renderNames(){
+  if(document.activeElement !== nameA) nameA.value = state.names.a;
+  if(document.activeElement !== nameB) nameB.value = state.names.b;
+}
+function onName(){
+  if(!state) return;
+  state.names.a = nameA.value.trim() || "You";
+  state.names.b = nameB.value.trim() || "Me";
+  save(); renderFree();
+}
+nameA.addEventListener("change", onName);
+nameB.addEventListener("change", onName);
 
-  function renderCalendar(){
-    var y = calView.getFullYear(), m = calView.getMonth();
-    document.getElementById("calTitle").textContent = MONTHS[m]+" "+y;
-    var grid = document.getElementById("calGrid");
-    grid.innerHTML = "";
-    CDOW.forEach(function(d){
-      var h = document.createElement("div");
-      h.className = "cdow"; h.textContent = d;
-      grid.appendChild(h);
-    });
-    var first = new Date(y,m,1).getDay();
-    var dim = new Date(y,m+1,0).getDate();
-    var todayKey = fmtKey(new Date());
-    var i;
-    for(i=0;i<first;i++){
-      var bl = document.createElement("div");
-      bl.className = "cell blank";
-      grid.appendChild(bl);
-    }
-    for(var day=1;day<=dim;day++){
-      var key = y+"-"+pad2(m+1)+"-"+pad2(day);
-      var has = state.events.some(function(e){ return e.date===key; });
-      var cell = document.createElement("button");
-      cell.className = "cell"+(key===todayKey?" today":"")+(key===calSel?" sel":"");
-      cell.dataset.key = key;
-      cell.innerHTML = day + (has?'<span class="dot"></span>':"");
-      grid.appendChild(cell);
-    }
-    renderCalDay();
-  }
-  function renderCalDay(){
-    var p = calSel.split("-");
-    var d = new Date(+p[0], +p[1]-1, +p[2]);
-    document.getElementById("calDayTitle").textContent =
-      d.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
-    var list = document.getElementById("calEventList");
-    list.innerHTML = "";
-    var evs = state.events.filter(function(e){ return e.date===calSel; });
-    if(evs.length===0){
-      list.innerHTML = '<div class="empty">No plans for this day yet.</div>';
-      return;
-    }
-    evs.forEach(function(ev){
-      var el = document.createElement("div");
-      el.className = "item";
-      el.innerHTML = '<span class="itemtext">'+esc(ev.text)+'</span>'+
-        '<button class="del" data-id="'+ev.id+'">×</button>';
-      list.appendChild(el);
-    });
-  }
-  document.getElementById("calGrid").addEventListener("click", function(e){
-    var cell = e.target.closest(".cell");
-    if(!cell || !cell.dataset.key) return;
-    calSel = cell.dataset.key;
-    renderCalendar();
+/* ---- tabs ---- */
+var tabBtns = document.querySelectorAll("nav.tabs button");
+tabBtns.forEach(function(btn){
+  btn.addEventListener("click", function(){
+    tabBtns.forEach(function(b){ b.classList.remove("active"); });
+    btn.classList.add("active");
+    document.querySelectorAll(".tab").forEach(function(t){ t.classList.remove("active"); });
+    document.getElementById("tab-"+btn.dataset.tab).classList.add("active");
   });
-  document.getElementById("calPrev").addEventListener("click", function(){
-    calView.setMonth(calView.getMonth()-1); renderCalendar();
-  });
-  document.getElementById("calNext").addEventListener("click", function(){
-    calView.setMonth(calView.getMonth()+1); renderCalendar();
-  });
-  function addEvent(){
-    var inp = document.getElementById("calInput");
-    var v = inp.value.trim();
-    if(!v) return;
-    state.events.push({id:uid(),date:calSel,text:v});
-    inp.value = ""; save(); renderCalendar();
-  }
-  document.getElementById("calAdd").addEventListener("click", addEvent);
-  document.getElementById("calInput").addEventListener("keydown", function(e){
-    if(e.key==="Enter") addEvent();
-  });
-  document.getElementById("calEventList").addEventListener("click", function(e){
-    var b = e.target.closest(".del");
-    if(!b) return;
-    state.events = state.events.filter(function(x){ return x.id!==b.dataset.id; });
-    save(); renderCalendar();
-  });
+});
 
-  /* ---- free time ---- */
-  var DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  function renderFree(){
-    var grid = document.getElementById("freeGrid");
-    grid.innerHTML = "";
-    var today = new Date(); today.setHours(0,0,0,0);
-    for(var i=0;i<7;i++){
-      var d = new Date(today); d.setDate(today.getDate()+i);
-      var key = fmtKey(d);
-      var slot = state.free[key] || {a:false,b:false};
-      var both = slot.a && slot.b;
-      var row = document.createElement("div");
-      row.className = "dayrow" + (both?" both":"");
-      row.innerHTML =
-        '<div class="daylabel"><span class="dow">'+(i===0?"Today":DOW[d.getDay()])+
-        '</span><span class="dnum">'+d.getDate()+'</span></div>'+
-        '<div class="pills">'+
-        '<button class="pill '+(slot.a?"on":"")+'" data-k="'+key+'" data-p="a">'+esc(state.names.a)+'</button>'+
-        '<button class="pill '+(slot.b?"on":"")+'" data-k="'+key+'" data-p="b">'+esc(state.names.b)+'</button>'+
-        '</div>'+
-        (both?'<span class="badge">both free</span>':"");
-      grid.appendChild(row);
-    }
-  }
-  document.getElementById("freeGrid").addEventListener("click", function(e){
-    var btn = e.target.closest(".pill");
-    if(!btn) return;
-    var k = btn.dataset.k, p = btn.dataset.p;
-    if(!state.free[k]) state.free[k] = {a:false,b:false};
-    state.free[k][p] = !state.free[k][p];
-    save(); renderFree();
-  });
+/* ---- calendar ---- */
+var MONTHS = ["January","February","March","April","May","June",
+  "July","August","September","October","November","December"];
+var CDOW = ["S","M","T","W","T","F","S"];
+var DOW  = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+var calView = new Date(); calView.setDate(1); calView.setHours(0,0,0,0);
+var calSel = fmtKey(new Date());
 
-  /* ---- date ideas ---- */
-  function renderIdeas(){
-    var list = document.getElementById("ideaList");
-    list.innerHTML = "";
-    if(state.ideas.length===0){
-      list.innerHTML = '<div class="empty">No ideas yet &mdash; add one above.</div>';
-      return;
-    }
-    state.ideas.forEach(function(it){
-      var el = document.createElement("div");
-      el.className = "item" + (it.done?" done":"");
-      el.innerHTML =
-        '<button class="check" data-act="idea-toggle" data-id="'+it.id+'">'+(it.done?"✓":"")+'</button>'+
-        '<span class="itemtext">'+esc(it.text)+'</span>'+
-        '<button class="del" data-act="idea-del" data-id="'+it.id+'">×</button>';
-      list.appendChild(el);
-    });
+function renderCalendar(){
+  if(!state) return;
+  var y = calView.getFullYear(), m = calView.getMonth();
+  document.getElementById("calTitle").textContent = MONTHS[m]+" "+y;
+  var grid = document.getElementById("calGrid");
+  grid.innerHTML = "";
+  CDOW.forEach(function(d){
+    var h = document.createElement("div");
+    h.className = "cdow"; h.textContent = d;
+    grid.appendChild(h);
+  });
+  var first = new Date(y,m,1).getDay();
+  var dim = new Date(y,m+1,0).getDate();
+  var todayKey = fmtKey(new Date());
+  for(var i=0;i<first;i++){
+    var bl = document.createElement("div");
+    bl.className = "cell blank";
+    grid.appendChild(bl);
   }
-  function addIdea(){
-    var inp = document.getElementById("ideaInput");
-    var v = inp.value.trim();
-    if(!v) return;
-    state.ideas.push({id:uid(),text:v,done:false});
-    inp.value = ""; save(); renderIdeas();
+  for(var day=1;day<=dim;day++){
+    var key = y+"-"+pad2(m+1)+"-"+pad2(day);
+    var has = state.events.some(function(e){ return e.date===key; });
+    var sl = state.free[key];
+    var bf = !!(sl && sl.a && sl.b);
+    var cell = document.createElement("button");
+    cell.className = "cell"+(bf?" bothfree":"")+(key===todayKey?" today":"")+(key===calSel?" sel":"");
+    cell.dataset.key = key;
+    cell.innerHTML = day + (has?'<span class="dot"></span>':"");
+    grid.appendChild(cell);
   }
-  document.getElementById("ideaAdd").addEventListener("click", addIdea);
-  document.getElementById("ideaInput").addEventListener("keydown", function(e){
-    if(e.key==="Enter") addIdea();
+  renderCalDay();
+}
+function renderCalDay(){
+  var p = calSel.split("-");
+  var d = new Date(+p[0], +p[1]-1, +p[2]);
+  document.getElementById("calDayTitle").textContent =
+    d.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
+  var list = document.getElementById("calEventList");
+  list.innerHTML = "";
+  var evs = state.events.filter(function(e){ return e.date===calSel; });
+  if(evs.length===0){
+    list.innerHTML = '<div class="empty">No plans for this day yet.</div>';
+    return;
+  }
+  evs.forEach(function(ev){
+    var el = document.createElement("div");
+    el.className = "item";
+    el.innerHTML = '<span class="itemtext">'+esc(ev.text)+'</span>'+
+      '<button class="del" data-id="'+ev.id+'">×</button>';
+    list.appendChild(el);
   });
-  document.getElementById("ideaList").addEventListener("click", function(e){
-    var b = e.target.closest("button");
-    if(!b) return;
-    var id = b.dataset.id;
-    if(b.dataset.act==="idea-toggle"){
-      state.ideas.forEach(function(it){ if(it.id===id) it.done=!it.done; });
-    }else if(b.dataset.act==="idea-del"){
-      state.ideas = state.ideas.filter(function(it){ return it.id!==id; });
-    }
-    save(); renderIdeas();
-  });
-  document.getElementById("surpriseBtn").addEventListener("click", function(){
-    var pool = state.ideas.filter(function(it){ return !it.done; });
-    var box = document.getElementById("surprise");
-    if(pool.length===0){
-      box.textContent = state.ideas.length ? "You've done them all — add a new one."
-                                           : "Add an idea first.";
-      return;
-    }
-    var pick = pool[Math.floor(Math.random()*pool.length)];
-    box.textContent = pick.text;
-  });
+}
+document.getElementById("calGrid").addEventListener("click", function(e){
+  if(!state) return;
+  var cell = e.target.closest(".cell");
+  if(!cell || !cell.dataset.key) return;
+  calSel = cell.dataset.key;
+  renderCalendar();
+});
+document.getElementById("calPrev").addEventListener("click", function(){
+  calView.setMonth(calView.getMonth()-1); renderCalendar();
+});
+document.getElementById("calNext").addEventListener("click", function(){
+  calView.setMonth(calView.getMonth()+1); renderCalendar();
+});
+function addEvent(){
+  if(!state) return;
+  var inp = document.getElementById("calInput");
+  var v = inp.value.trim();
+  if(!v) return;
+  state.events.push({id:uid(),date:calSel,text:v});
+  inp.value = ""; save(); renderCalendar();
+}
+document.getElementById("calAdd").addEventListener("click", addEvent);
+document.getElementById("calInput").addEventListener("keydown", function(e){
+  if(e.key==="Enter") addEvent();
+});
+document.getElementById("calEventList").addEventListener("click", function(e){
+  if(!state) return;
+  var b = e.target.closest(".del");
+  if(!b) return;
+  state.events = state.events.filter(function(x){ return x.id!==b.dataset.id; });
+  save(); renderCalendar();
+});
 
-  /* ---- watchlist ---- */
-  function renderWatch(){
-    var list = document.getElementById("watchList");
-    list.innerHTML = "";
-    if(state.watch.length===0){
-      list.innerHTML = '<div class="empty">Add a movie or show you want to watch together.</div>';
-      return;
-    }
-    state.watch.forEach(function(it){
-      var el = document.createElement("div");
-      el.className = "item" + (it.done?" done":"");
-      el.innerHTML =
-        '<button class="check" data-act="watch-toggle" data-id="'+it.id+'">'+(it.done?"✓":"")+'</button>'+
-        '<span class="itemtext">'+esc(it.text)+'</span>'+
-        '<button class="del" data-act="watch-del" data-id="'+it.id+'">×</button>';
-      list.appendChild(el);
-    });
+/* ---- free time ---- */
+function renderFree(){
+  if(!state) return;
+  var grid = document.getElementById("freeGrid");
+  grid.innerHTML = "";
+  var today = new Date(); today.setHours(0,0,0,0);
+  for(var i=0;i<7;i++){
+    var d = new Date(today); d.setDate(today.getDate()+i);
+    var key = fmtKey(d);
+    var slot = state.free[key] || {a:false,b:false};
+    var both = slot.a && slot.b;
+    var label = d.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
+    var row = document.createElement("div");
+    row.className = "dayrow" + (both?" both":"");
+    row.innerHTML =
+      '<div class="daylabel"><span class="dow">'+(i===0?"Today":DOW[d.getDay()])+
+      '</span><span class="dnum">'+d.getDate()+'</span></div>'+
+      '<div class="pills">'+
+      '<button class="pill '+(slot.a?"on":"")+'" data-k="'+key+'" data-p="a">'+esc(state.names.a)+'</button>'+
+      '<button class="pill '+(slot.b?"on":"")+'" data-k="'+key+'" data-p="b">'+esc(state.names.b)+'</button>'+
+      '</div>'+
+      (both?'<button class="planbtn" data-k="'+key+'" data-label="'+esc(label)+'">both free — add a plan &rsaquo;</button>':"");
+    grid.appendChild(row);
   }
-  function addWatch(){
-    var inp = document.getElementById("watchInput");
-    var v = inp.value.trim();
-    if(!v) return;
-    state.watch.push({id:uid(),text:v,done:false});
-    inp.value = ""; save(); renderWatch();
-  }
-  document.getElementById("watchAdd").addEventListener("click", addWatch);
-  document.getElementById("watchInput").addEventListener("keydown", function(e){
-    if(e.key==="Enter") addWatch();
-  });
-  document.getElementById("watchList").addEventListener("click", function(e){
-    var b = e.target.closest("button");
-    if(!b) return;
-    var id = b.dataset.id;
-    if(b.dataset.act==="watch-toggle"){
-      state.watch.forEach(function(it){ if(it.id===id) it.done=!it.done; });
-    }else if(b.dataset.act==="watch-del"){
-      state.watch = state.watch.filter(function(it){ return it.id!==id; });
+}
+document.getElementById("freeGrid").addEventListener("click", function(e){
+  if(!state) return;
+  var plan = e.target.closest(".planbtn");
+  if(plan){
+    var txt = prompt("Add a plan for "+plan.dataset.label+":");
+    if(txt && txt.trim()){
+      state.events.push({id:uid(),date:plan.dataset.k,text:txt.trim()});
+      save(); renderCalendar(); renderFree();
     }
-    save(); renderWatch();
-  });
+    return;
+  }
+  var btn = e.target.closest(".pill");
+  if(!btn) return;
+  var k = btn.dataset.k, p = btn.dataset.p;
+  if(!state.free[k]) state.free[k] = {a:false,b:false};
+  state.free[k][p] = !state.free[k][p];
+  save(); renderFree(); renderCalendar();
+});
 
-  /* ---- big days ---- */
-  function daysUntil(dateStr, yearly){
-    var today = new Date(); today.setHours(0,0,0,0);
-    var p = dateStr.split("-");
-    var t = new Date(+p[0], +p[1]-1, +p[2]); t.setHours(0,0,0,0);
-    if(yearly){
-      t.setFullYear(today.getFullYear());
-      if(t < today) t.setFullYear(today.getFullYear()+1);
-    }
-    return Math.round((t - today)/86400000);
+/* ---- date ideas ---- */
+function renderIdeas(){
+  if(!state) return;
+  var list = document.getElementById("ideaList");
+  list.innerHTML = "";
+  if(state.ideas.length===0){
+    list.innerHTML = '<div class="empty">No ideas yet &mdash; add one above.</div>';
+    return;
   }
-  function renderDays(){
-    var list = document.getElementById("dayList");
-    list.innerHTML = "";
-    if(state.days.length===0){
-      list.innerHTML = '<div class="empty">Add anniversaries, birthdays, or trips to count down to.</div>';
-      return;
-    }
-    var sorted = state.days.slice().sort(function(a,b){
-      return daysUntil(a.date,a.yearly) - daysUntil(b.date,b.yearly);
-    });
-    sorted.forEach(function(ev){
-      var n = daysUntil(ev.date, ev.yearly);
-      var num, lbl;
-      if(n===0){ num="today"; lbl=""; }
-      else if(n>0){ num=n; lbl=(n===1?"day to go":"days to go"); }
-      else { num=Math.abs(n); lbl=(n===-1?"day ago":"days ago"); }
-      var el = document.createElement("div");
-      el.className = "item";
-      el.innerHTML =
-        '<div class="countdown"><span class="num">'+num+'</span><span class="lbl">'+lbl+'</span></div>'+
-        '<div class="dayinfo"><div class="nm">'+esc(ev.name)+'</div>'+
-        '<div class="dt">'+esc(ev.date)+(ev.yearly?" · yearly":"")+'</div></div>'+
-        '<button class="del" data-id="'+ev.id+'">×</button>';
-      list.appendChild(el);
-    });
-  }
-  function addDay(){
-    var nm = document.getElementById("dayName");
-    var dt = document.getElementById("dayDate");
-    var yr = document.getElementById("dayYearly");
-    if(!nm.value.trim() || !dt.value) return;
-    state.days.push({id:uid(),name:nm.value.trim(),date:dt.value,yearly:yr.checked});
-    nm.value=""; dt.value="";
-    save(); renderDays();
-  }
-  document.getElementById("dayAdd").addEventListener("click", addDay);
-  document.getElementById("dayName").addEventListener("keydown", function(e){
-    if(e.key==="Enter") addDay();
+  state.ideas.forEach(function(it){
+    var el = document.createElement("div");
+    el.className = "item" + (it.done?" done":"");
+    el.innerHTML =
+      '<button class="check" data-act="idea-toggle" data-id="'+it.id+'">'+(it.done?"✓":"")+'</button>'+
+      '<span class="itemtext">'+esc(it.text)+'</span>'+
+      '<button class="del" data-act="idea-del" data-id="'+it.id+'">×</button>';
+    list.appendChild(el);
   });
-  document.getElementById("dayList").addEventListener("click", function(e){
-    var b = e.target.closest(".del");
-    if(!b) return;
-    state.days = state.days.filter(function(x){ return x.id!==b.dataset.id; });
-    save(); renderDays();
-  });
+}
+function addIdea(){
+  if(!state) return;
+  var inp = document.getElementById("ideaInput");
+  var v = inp.value.trim();
+  if(!v) return;
+  state.ideas.push({id:uid(),text:v,done:false});
+  inp.value = ""; save(); renderIdeas();
+}
+document.getElementById("ideaAdd").addEventListener("click", addIdea);
+document.getElementById("ideaInput").addEventListener("keydown", function(e){
+  if(e.key==="Enter") addIdea();
+});
+document.getElementById("ideaList").addEventListener("click", function(e){
+  if(!state) return;
+  var b = e.target.closest("button");
+  if(!b) return;
+  var id = b.dataset.id;
+  if(b.dataset.act==="idea-toggle"){
+    state.ideas.forEach(function(it){ if(it.id===id) it.done=!it.done; });
+  }else if(b.dataset.act==="idea-del"){
+    state.ideas = state.ideas.filter(function(it){ return it.id!==id; });
+  }
+  save(); renderIdeas();
+});
+document.getElementById("surpriseBtn").addEventListener("click", function(){
+  if(!state) return;
+  var pool = state.ideas.filter(function(it){ return !it.done; });
+  var box = document.getElementById("surprise");
+  if(pool.length===0){
+    box.textContent = state.ideas.length ? "You've done them all — add a new one."
+                                         : "Add an idea first.";
+    return;
+  }
+  box.textContent = pool[Math.floor(Math.random()*pool.length)].text;
+});
 
-  /* ---- to-do ---- */
-  function renderTodos(){
-    var list = document.getElementById("todoList");
-    list.innerHTML = "";
-    if(state.todos.length===0){
-      list.innerHTML = '<div class="empty">Nothing here yet &mdash; add your first shared to-do.</div>';
-      return;
-    }
-    state.todos.forEach(function(it){
-      var el = document.createElement("div");
-      el.className = "item" + (it.done?" done":"");
-      el.innerHTML =
-        '<button class="check" data-act="todo-toggle" data-id="'+it.id+'">'+(it.done?"✓":"")+'</button>'+
-        '<span class="itemtext">'+esc(it.text)+'</span>'+
-        '<button class="del" data-act="todo-del" data-id="'+it.id+'">×</button>';
-      list.appendChild(el);
-    });
+/* ---- watchlist ---- */
+function renderWatch(){
+  if(!state) return;
+  var list = document.getElementById("watchList");
+  list.innerHTML = "";
+  if(state.watch.length===0){
+    list.innerHTML = '<div class="empty">Add a movie or show you want to watch together.</div>';
+    return;
   }
-  function addTodo(){
-    var inp = document.getElementById("todoInput");
-    var v = inp.value.trim();
-    if(!v) return;
-    state.todos.push({id:uid(),text:v,done:false});
-    inp.value=""; save(); renderTodos();
+  state.watch.forEach(function(it){
+    var el = document.createElement("div");
+    el.className = "item" + (it.done?" done":"");
+    el.innerHTML =
+      '<button class="check" data-act="watch-toggle" data-id="'+it.id+'">'+(it.done?"✓":"")+'</button>'+
+      '<span class="itemtext">'+esc(it.text)+'</span>'+
+      '<button class="del" data-act="watch-del" data-id="'+it.id+'">×</button>';
+    list.appendChild(el);
+  });
+}
+function addWatch(){
+  if(!state) return;
+  var inp = document.getElementById("watchInput");
+  var v = inp.value.trim();
+  if(!v) return;
+  state.watch.push({id:uid(),text:v,done:false});
+  inp.value = ""; save(); renderWatch();
+}
+document.getElementById("watchAdd").addEventListener("click", addWatch);
+document.getElementById("watchInput").addEventListener("keydown", function(e){
+  if(e.key==="Enter") addWatch();
+});
+document.getElementById("watchList").addEventListener("click", function(e){
+  if(!state) return;
+  var b = e.target.closest("button");
+  if(!b) return;
+  var id = b.dataset.id;
+  if(b.dataset.act==="watch-toggle"){
+    state.watch.forEach(function(it){ if(it.id===id) it.done=!it.done; });
+  }else if(b.dataset.act==="watch-del"){
+    state.watch = state.watch.filter(function(it){ return it.id!==id; });
   }
-  document.getElementById("todoAdd").addEventListener("click", addTodo);
-  document.getElementById("todoInput").addEventListener("keydown", function(e){
-    if(e.key==="Enter") addTodo();
-  });
-  document.getElementById("todoList").addEventListener("click", function(e){
-    var b = e.target.closest("button");
-    if(!b) return;
-    var id = b.dataset.id;
-    if(b.dataset.act==="todo-toggle"){
-      state.todos.forEach(function(it){ if(it.id===id) it.done=!it.done; });
-    }else if(b.dataset.act==="todo-del"){
-      state.todos = state.todos.filter(function(it){ return it.id!==id; });
-    }
-    save(); renderTodos();
-  });
+  save(); renderWatch();
+});
 
-  /* ---- init ---- */
-  renderCalendar(); renderFree(); renderIdeas();
-  renderWatch(); renderDays(); renderTodos();
-})();
+/* ---- big days ---- */
+function daysUntil(dateStr, yearly){
+  var today = new Date(); today.setHours(0,0,0,0);
+  var p = dateStr.split("-");
+  var t = new Date(+p[0], +p[1]-1, +p[2]); t.setHours(0,0,0,0);
+  if(yearly){
+    t.setFullYear(today.getFullYear());
+    if(t < today) t.setFullYear(today.getFullYear()+1);
+  }
+  return Math.round((t - today)/86400000);
+}
+function renderDays(){
+  if(!state) return;
+  var list = document.getElementById("dayList");
+  list.innerHTML = "";
+  if(state.days.length===0){
+    list.innerHTML = '<div class="empty">Add anniversaries, birthdays, or trips to count down to.</div>';
+    return;
+  }
+  var sorted = state.days.slice().sort(function(a,b){
+    return daysUntil(a.date,a.yearly) - daysUntil(b.date,b.yearly);
+  });
+  sorted.forEach(function(ev){
+    var n = daysUntil(ev.date, ev.yearly);
+    var num, lbl;
+    if(n===0){ num="today"; lbl=""; }
+    else if(n>0){ num=n; lbl=(n===1?"day to go":"days to go"); }
+    else { num=Math.abs(n); lbl=(n===-1?"day ago":"days ago"); }
+    var el = document.createElement("div");
+    el.className = "item";
+    el.innerHTML =
+      '<div class="countdown"><span class="num">'+num+'</span><span class="lbl">'+lbl+'</span></div>'+
+      '<div class="dayinfo"><div class="nm">'+esc(ev.name)+'</div>'+
+      '<div class="dt">'+esc(ev.date)+(ev.yearly?" · yearly":"")+'</div></div>'+
+      '<button class="del" data-id="'+ev.id+'">×</button>';
+    list.appendChild(el);
+  });
+}
+function addDay(){
+  if(!state) return;
+  var nm = document.getElementById("dayName");
+  var dt = document.getElementById("dayDate");
+  var yr = document.getElementById("dayYearly");
+  if(!nm.value.trim() || !dt.value) return;
+  state.days.push({id:uid(),name:nm.value.trim(),date:dt.value,yearly:yr.checked});
+  nm.value=""; dt.value="";
+  save(); renderDays();
+}
+document.getElementById("dayAdd").addEventListener("click", addDay);
+document.getElementById("dayName").addEventListener("keydown", function(e){
+  if(e.key==="Enter") addDay();
+});
+document.getElementById("dayList").addEventListener("click", function(e){
+  if(!state) return;
+  var b = e.target.closest(".del");
+  if(!b) return;
+  state.days = state.days.filter(function(x){ return x.id!==b.dataset.id; });
+  save(); renderDays();
+});
+
+/* ---- to-do ---- */
+function renderTodos(){
+  if(!state) return;
+  var list = document.getElementById("todoList");
+  list.innerHTML = "";
+  if(state.todos.length===0){
+    list.innerHTML = '<div class="empty">Nothing here yet &mdash; add your first shared to-do.</div>';
+    return;
+  }
+  state.todos.forEach(function(it){
+    var el = document.createElement("div");
+    el.className = "item" + (it.done?" done":"");
+    el.innerHTML =
+      '<button class="check" data-act="todo-toggle" data-id="'+it.id+'">'+(it.done?"✓":"")+'</button>'+
+      '<span class="itemtext">'+esc(it.text)+'</span>'+
+      '<button class="del" data-act="todo-del" data-id="'+it.id+'">×</button>';
+    list.appendChild(el);
+  });
+}
+function addTodo(){
+  if(!state) return;
+  var inp = document.getElementById("todoInput");
+  var v = inp.value.trim();
+  if(!v) return;
+  state.todos.push({id:uid(),text:v,done:false});
+  inp.value=""; save(); renderTodos();
+}
+document.getElementById("todoAdd").addEventListener("click", addTodo);
+document.getElementById("todoInput").addEventListener("keydown", function(e){
+  if(e.key==="Enter") addTodo();
+});
+document.getElementById("todoList").addEventListener("click", function(e){
+  if(!state) return;
+  var b = e.target.closest("button");
+  if(!b) return;
+  var id = b.dataset.id;
+  if(b.dataset.act==="todo-toggle"){
+    state.todos.forEach(function(it){ if(it.id===id) it.done=!it.done; });
+  }else if(b.dataset.act==="todo-del"){
+    state.todos = state.todos.filter(function(it){ return it.id!==id; });
+  }
+  save(); renderTodos();
+});
+
+/* ---- render everything ---- */
+function renderAll(){
+  if(!state) return;
+  renderNames();
+  renderCalendar();
+  renderFree();
+  renderIdeas();
+  renderWatch();
+  renderDays();
+  renderTodos();
+}
+
+/* ---- live sync ---- */
+onSnapshot(docRef, function(snap){
+  if(snap.exists() && snap.data() && snap.data().json){
+    try{ state = JSON.parse(snap.data().json); }
+    catch(e){ state = freshState(); }
+  }else{
+    state = freshState();
+    setDoc(docRef, { json: JSON.stringify(state) });
+  }
+  normalize();
+  if(!booted){
+    booted = true;
+    document.getElementById("loading").classList.add("hidden");
+    document.getElementById("foot").textContent = "live · shared between you both";
+  }
+  renderAll();
+}, function(err){
+  showError("Couldn't reach the shared space. Check your connection and refresh. (" +
+    (err && err.message ? err.message : "unknown error") + ")");
+});
+
+setTimeout(function(){
+  if(!booted){
+    showError("Still connecting. Check your internet and refresh the page. " +
+      "If it keeps happening, the Firebase database rules may need to be published.");
+  }
+}, 12000);
 </script>
 </body>
 </html>
